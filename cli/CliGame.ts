@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Board } from '../shared/model/Board'
 import { Game } from '../shared/game/Game'
 import { sleep } from '@fettstorch/jule'
