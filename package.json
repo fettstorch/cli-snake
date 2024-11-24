@@ -1,9 +1,9 @@
 {
 	"name": "@fettstorch/snake",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"type": "module",
 	"scripts": {
-		"build": "bun build ./cli/CliGame.ts --outdir ./dist --target node",
+		"build": "bun build ./cli/CliGame.ts --outdir ./dist --target node --format esm",
 		"dev": "bun cli/CliGame.ts",
 		"typecheck": "tsc --noEmit"
 	},
