@@ -1,6 +1,6 @@
 {
 	"name": "@fettstorch/snake",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"type": "module",
 	"scripts": {
 		"build": "bun build ./cli/CliGame.ts --outdir ./dist --target node --format esm && chmod +x ./dist/CliGame.js",
@@ -22,7 +22,5 @@
 	"bin": {
 		"snake": "dist/CliGame.js"
 	},
-	"files": [
-		"dist"
-	]
+	"files": ["dist"]
 }
