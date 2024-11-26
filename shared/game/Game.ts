@@ -33,22 +33,6 @@ export class Game {
 		return this.snake.length
 	}
 
-	get boardState() {
-		const boardSnapshot: (CellContent | '●')[][] = Array.from(
-			{ length: this.board.height },
-			() => Array.from({ length: this.board.width }, () => ' '),
-		)
-		boardSnapshot[this.fly.y][this.fly.x] = '%'
-		for (const part of this.snake.tail) {
-			boardSnapshot[part.y][part.x] = part.value
-		}
-		for (const swallowedFly of this.swallowedFlies) {
-			boardSnapshot[swallowedFly.y][swallowedFly.x] = '●'
-		}
-		boardSnapshot[this.snake.head.y][this.snake.head.x] = this.snake.head.value
-		return boardSnapshot
-	}
-
 	positionFly() {
 		const randomIndex = Math.floor(Math.random() * this.freeCells.length)
 		this.fly = this.freeCells[randomIndex]
