@@ -6,6 +6,8 @@ import { sleep } from '@fettstorch/jule'
 import type { CellContent } from '../shared/model/Cell'
 import { keyControls } from './keyControls'
 
+const sleepTime = 100
+
 async function main() {
 	const terminalWidth = process.stdout.columns - 1
 	const terminalHeight = process.stdout.rows - 1
@@ -36,7 +38,7 @@ async function main() {
 		console.log('Controls: ←↑↓→ or WASD')
 		printBoardState(game.boardState)
 		console.log('Score: ', game.score)
-		await sleep(100)
+		await sleep(sleepTime)
 	}
 	cleanup()
 	process.exit(0)

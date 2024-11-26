@@ -38,7 +38,7 @@ export class Game {
 			{ length: this.board.height },
 			() => Array.from({ length: this.board.width }, () => ' '),
 		)
-		boardSnapshot[this.fly.y][this.fly.x] = '🪰'
+		boardSnapshot[this.fly.y][this.fly.x] = '%'
 		for (const part of this.snake.tail) {
 			boardSnapshot[part.y][part.x] = part.value
 		}

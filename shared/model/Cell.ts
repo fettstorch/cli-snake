@@ -8,7 +8,7 @@ export type CellContentSnake =
 
 export type CellContentFree = ' '
 
-export type CellContentFly = '🪰'
+export type CellContentFly = '%'
 
 export type CellContent = CellContentSnake | CellContentFree | CellContentFly
 

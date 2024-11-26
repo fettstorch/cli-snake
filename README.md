@@ -13,5 +13,5 @@ npx @fettstorch/snake
 
 ## How to Play
 - Use ←↑↓→ or WASD to control the snake
-- Eat flies (🪰) to grow
+- Eat flies (%) to grow
 - Avoid hitting walls and yourself
