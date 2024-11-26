@@ -1,4 +1,3 @@
-import { when } from '@fettstorch/jule'
 import type {
 	CellContentSnake,
 	CellContentSnakeHead,
@@ -30,14 +29,20 @@ export class Snake {
 	}
 
 	set direction(newDirection: CellContentSnakeHead) {
-		const currentDir = this.head.value
-		this.head.value =
-			when(newDirection)({
-				'<': (it) => currentDir !== '>' && it,
-				'>': (it) => currentDir !== '<' && it,
-				A: (it) => currentDir !== 'v' && it,
-				v: (it) => currentDir !== 'A' && it,
-			}) || currentDir
+		const head = this.head
+		const neck = this.parts[1]
+
+		// prevent faulty 180° turns
+		const horizontal = newDirection === '<' || newDirection === '>'
+		const vertical = newDirection === 'A' || newDirection === 'v'
+
+		if (horizontal && head.y === neck.y) {
+			return
+		}
+		if (vertical && head.x === neck.x) {
+			return
+		}
+		this.head.value = newDirection
 	}
 
 	moveTo(cell: CellCoordinates) {

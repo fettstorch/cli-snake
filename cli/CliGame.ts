@@ -3,10 +3,9 @@
 import { Board } from '../shared/model/Board'
 import { Game } from '../shared/game/Game'
 import { sleep } from '@fettstorch/jule'
-import type { CellContent } from '../shared/model/Cell'
 import { keyControls } from './keyControls'
 
-const sleepTime = 100
+const sleepTime = 120
 
 async function main() {
 	const terminalWidth = process.stdout.columns - 1
