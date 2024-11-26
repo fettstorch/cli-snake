@@ -25,6 +25,6 @@
 	"files": ["dist"],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Schnullerpip/cli-snake.git"
+		"url": "git+https://github.com/Schnullerpip/cli-snake.git"
 	}
 }
