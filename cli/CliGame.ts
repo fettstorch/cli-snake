@@ -60,31 +60,31 @@ async function main() {
 		await sleep(sleepTime)
 	}
 
-	if (game.score > 70) {
+	if (game.score > 69) {
 		await animateText(MESSAGES.huh)
 		await sleep(1000)
 		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 60) {
+	} else if (game.score > 59) {
 		await animateText(MESSAGES.god)
 		await sleep(1000)
 		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 50) {
+	} else if (game.score > 49) {
 		await animateText(MESSAGES.demiGod)
 		await sleep(1000)
 		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 40) {
+	} else if (game.score > 39) {
 		await animateText(MESSAGES.legendary)
 		await sleep(1000)
 		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 30) {
+	} else if (game.score > 29) {
 		await animateText(MESSAGES.amazing)
 		await sleep(1000)
 		await animateText(MESSAGES.amazingFollow)
-	} else if (game.score > 20) {
+	} else if (game.score > 19) {
 		await animateText(MESSAGES.great)
 		await sleep(1000)
 		await animateText(MESSAGES.greatFollow)
-	} else if (game.score > 10) {
+	} else if (game.score > 9) {
 		await animateText(MESSAGES.good)
 		await sleep(1000)
 		await animateText(MESSAGES.goodFollow)
