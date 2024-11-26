@@ -7,12 +7,31 @@ import { keyControls } from './keyControls'
 
 const sleepTime = 120
 
+const ANSI = {
+	reset: '\x1b[0m',
+	bold: '\x1b[1m',
+	dim: '\x1b[2m',
+	green: '\x1b[32m',
+	yellow: '\x1b[33m',
+	magenta: '\x1b[35m',
+	cyan: '\x1b[36m',
+} as const
+
+async function animateText(text: string, charDelay = 30): Promise<void> {
+	process.stdout.write('\r')
+	for (const char of text) {
+		process.stdout.write(char)
+		await sleep(charDelay)
+	}
+	process.stdout.write('\n')
+}
+
 async function main() {
 	const terminalWidth = process.stdout.columns - 1
 	const terminalHeight = process.stdout.rows - 1
 
 	const boardWidth = Math.min(terminalWidth, 20)
-	const boardHeight = Math.min(terminalHeight, 15)
+	const boardHeight = Math.min(terminalHeight, 10)
 
 	if (boardWidth < 2 || boardHeight < 2) {
 		console.error('Terminal window too small. Minimum size is 2x2.')
@@ -34,10 +53,45 @@ async function main() {
 
 	while (game.process() === 'ongoing') {
 		console.clear()
-		console.log('Controls: ←↑↓→ or WASD')
+		console.log(`${ANSI.bold}🐍 Snake Game${ANSI.reset}`)
+		console.log(`${ANSI.dim}Controls: ←↑↓→ or WASD${ANSI.reset}`)
 		printBoardState()
-		console.log('Score: ', game.score)
+		console.log(`${ANSI.cyan}Score: ${game.score}${ANSI.reset}`)
 		await sleep(sleepTime)
+	}
+
+	if (game.score > 70) {
+		await animateText(MESSAGES.huh)
+		await sleep(1000)
+		await animateText(MESSAGES.legendaryFollow)
+	} else if (game.score > 60) {
+		await animateText(MESSAGES.god)
+		await sleep(1000)
+		await animateText(MESSAGES.legendaryFollow)
+	} else if (game.score > 50) {
+		await animateText(MESSAGES.demiGod)
+		await sleep(1000)
+		await animateText(MESSAGES.legendaryFollow)
+	} else if (game.score > 40) {
+		await animateText(MESSAGES.legendary)
+		await sleep(1000)
+		await animateText(MESSAGES.legendaryFollow)
+	} else if (game.score > 30) {
+		await animateText(MESSAGES.amazing)
+		await sleep(1000)
+		await animateText(MESSAGES.amazingFollow)
+	} else if (game.score > 20) {
+		await animateText(MESSAGES.great)
+		await sleep(1000)
+		await animateText(MESSAGES.greatFollow)
+	} else if (game.score > 10) {
+		await animateText(MESSAGES.good)
+		await sleep(1000)
+		await animateText(MESSAGES.goodFollow)
+	} else {
+		await animateText(MESSAGES.badInitial)
+		await sleep(1000)
+		await animateText(MESSAGES.badFollow)
 	}
 	cleanup()
 	process.exit(0)
@@ -46,7 +100,8 @@ async function main() {
 		const snapshot = Array.from({ length: board.height }, () =>
 			Array.from({ length: board.width }, () => ' '),
 		)
-		snapshot[game.fly.y][game.fly.x] = '%'
+		snapshot[game.fly.y][game.fly.x] =
+			`${ANSI.bold}${ANSI.magenta}%${ANSI.reset}`
 		for (let i = 0; i < game.snake.tail.length; i++) {
 			const prev = game.snake.tail[i - 1] ?? game.snake.head
 			const current = game.snake.tail[i]
@@ -85,24 +140,43 @@ async function main() {
 							: '╚' // ═ to up
 				}
 			}
-			snapshot[current.y][current.x] = content
+			snapshot[current.y][current.x] = `${ANSI.green}${content}${ANSI.reset}`
 		}
 
 		for (const swallowedFly of game.swallowedFlies) {
-			snapshot[swallowedFly.y][swallowedFly.x] = 'O' //'●'
+			snapshot[swallowedFly.y][swallowedFly.x] = `${ANSI.green}●${ANSI.reset}`
 		}
-		snapshot[game.snake.head.y][game.snake.head.x] = game.snake.head.value
+		snapshot[game.snake.head.y][game.snake.head.x] =
+			`${ANSI.bold}${ANSI.green}${game.snake.head.value}${ANSI.reset}`
 
 		return snapshot
 	}
 
 	function printBoardState() {
-		console.log(`┌${'─'.repeat(board.width)}┐`)
+		console.log(`${ANSI.cyan}┌${'─'.repeat(board.width)}┐${ANSI.reset}`)
 		for (const row of boardStateSnapshot()) {
-			console.log(`│${row.join('')}│`)
+			console.log(
+				`${ANSI.cyan}│${ANSI.reset}${row.join('')}${ANSI.cyan}│${ANSI.reset}`,
+			)
 		}
-		console.log(`└${'─'.repeat(board.width)}┘`)
+		console.log(`${ANSI.cyan}└${'─'.repeat(board.width)}┘${ANSI.reset}`)
 	}
 }
+
+const MESSAGES = {
+	huh: `${ANSI.bold}${ANSI.green} Well.. maybe you should contribute to www.github.com/schnullerpip/cli-snake and make some more praise texts because you just made more points than what i thought would anyone care to do.. 🤷‍♂️${ANSI.reset}`,
+	god: `${ANSI.bold}${ANSI.green} Ok. Thats it... I'm calling the police! 🚨👮‍♂️ These levels of skill are illegal!${ANSI.reset}`,
+	demiGod: `${ANSI.bold}${ANSI.green} Your are growing too powerful... this shouldn't be possible... 😨 ${ANSI.reset}`,
+	legendary: `${ANSI.bold}${ANSI.green}🎊 WOW! You are officially the best at this!🥇${ANSI.reset}`,
+	legendaryFollow: `${ANSI.bold}${ANSI.green}Give @joolean.dev (🦋) a heads up to let me know how insane you are! 🤩🎉${ANSI.reset}`,
+	amazing: `${ANSI.bold}${ANSI.green}Uhm.. why are you so good at this 🤯 👏👏👏!? ${ANSI.reset}`,
+	amazingFollow: `${ANSI.bold}${ANSI.green}Are... you the one?... Could you actually reach 40!?!?...${ANSI.reset}`,
+	great: `${ANSI.bold}${ANSI.green}Dayum! Well done! 😎🎉${ANSI.reset}`,
+	greatFollow: `${ANSI.bold}${ANSI.green}I think maybe you have a chance to reach 30...👀${ANSI.reset}`,
+	good: `${ANSI.bold}${ANSI.green}Nice score! 😊🎉${ANSI.reset}`,
+	goodFollow: `${ANSI.bold}${ANSI.green}You're not too far off from 20...👀${ANSI.reset}`,
+	badInitial: `${ANSI.bold}${ANSI.yellow}Not bad!..${ANSI.reset}`,
+	badFollow: `${ANSI.bold}${ANSI.yellow}... jk... that was kinda bad 😊${ANSI.reset}`,
+} as const
 
 main()
