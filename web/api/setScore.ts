@@ -15,9 +15,11 @@ export async function POST(request: Request) {
 		return new Response('Missing user parameter', { status: 400 })
 	}
 
-	await redis.set(`user:${user}:score`, score)
-	await redis.zadd('top:scores', { score, member: user })
-	await redis.zremrangebyrank('top:scores', 10, -1)
+	await redis
+		.pipeline()
+		.zadd('top:scores', { score, member: user })
+		.zremrangebyrank('top:scores', 0, -11)
+		.exec()
 
 	return new Response('OK', { status: 200 })
 }
