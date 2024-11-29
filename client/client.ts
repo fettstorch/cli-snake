@@ -3,7 +3,7 @@ export const BASE_URL = 'https://snake-three-beta.vercel.app/'
 export async function clientSetScore(
 	user: string,
 	score: number,
-): Promise<void> {
+): Promise<'setScore' | 'scoreNotUpdated'> {
 	const response = await fetch(`${BASE_URL}/api/setScore`, {
 		method: 'POST',
 		headers: {
@@ -15,6 +15,9 @@ export async function clientSetScore(
 	if (!response.ok) {
 		throw new Error(`Failed to set score: ${response.statusText}`)
 	}
+
+	const message = await response.text()
+	return message.includes('Score updated') ? 'setScore' : 'scoreNotUpdated'
 }
 
 export async function clientGetTopScores(): Promise<

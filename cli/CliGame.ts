@@ -104,13 +104,17 @@ async function main() {
 			)
 		})
 	})
-	await clientSetScore(userName, game.score)
+	const updateResult = await clientSetScore(userName, game.score)
 	const topScores = clientGetTopScores()
 
 	await animateText(text('✨ Leaderboard ✨\n', 'bold', 'yellow'), 50)
 	await topScores.then(async (scoreEntries) => {
 		let i = 0
-		const thatsYou = text('<-- THATS YOU! 🎉🤯', 'bold', 'yellow')
+		const thatsYou = text(
+			`<-- ${updateResult === 'setScore' ? 'THATS YOU! 🎉🤯' : 'Still here 🙂'}`,
+			'bold',
+			'yellow',
+		)
 		for (const { user, score } of scoreEntries) {
 			const medal = when(i)({
 				0: '🥇',
