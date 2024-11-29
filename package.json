@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "bun build ./cli/CliGame.ts --outdir ./dist --target node --format esm && chmod +x ./dist/CliGame.js",
+		"check": "tsc --noEmit --watch",
 		"dev": "bun run build && node ./dist/CliGame.js",
 		"typecheck": "tsc --noEmit"
 	},

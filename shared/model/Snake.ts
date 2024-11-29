@@ -28,13 +28,17 @@ export class Snake {
 		return this.parts.slice(1)
 	}
 
+	get neck(): SnakeCell {
+		return this.parts[1]
+	}
+
 	set direction(newDirection: CellContentSnakeHead) {
 		const head = this.head
 		const neck = this.parts[1]
 
 		// prevent faulty 180° turns
 		const horizontal = newDirection === '<' || newDirection === '>'
-		const vertical = newDirection === 'A' || newDirection === 'v'
+		const vertical = newDirection === 'A' || newDirection === 'V'
 
 		if (horizontal && head.y === neck.y) {
 			return

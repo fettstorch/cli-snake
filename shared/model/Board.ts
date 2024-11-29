@@ -14,7 +14,7 @@ export class Board {
 		return when(direction)({
 			'>': { x: start.x - 1, y: start.y },
 			'<': { x: start.x + 1, y: start.y },
-			v: { x: start.x, y: start.y - 1 },
+			V: { x: start.x, y: start.y - 1 },
 			A: { x: start.x, y: start.y + 1 },
 		})
 	}

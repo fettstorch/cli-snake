@@ -4,9 +4,13 @@ import { Board } from '../shared/model/Board'
 import { Game } from '../shared/game/Game'
 import { sleep, when } from '@fettstorch/jule'
 import { keyControls } from './keyControls'
-import type { CellContentSnakeHead } from 'shared/model/Cell'
+import {
+	equals,
+	getOppositeDirection,
+	type CellContentSnakeHead,
+} from 'shared/model/Cell'
 
-const baseSleepTime = 100
+const baseSleepTime = 120
 const assumedTerminalCharacterAspectRatio = 1.3
 const getSleepTime = (direction: CellContentSnakeHead) =>
 	when(direction)({
@@ -14,6 +18,7 @@ const getSleepTime = (direction: CellContentSnakeHead) =>
 		'>': baseSleepTime,
 		else: baseSleepTime * assumedTerminalCharacterAspectRatio,
 	})
+let bufferedInput: CellContentSnakeHead | undefined
 
 const ANSI = {
 	reset: '\x1b[0m',
@@ -56,7 +61,21 @@ async function main() {
 			process.exit(0)
 		}
 
-		game.snake.direction = input
+		const oppositeDirection = getOppositeDirection(game.snake.head.value)
+		const oneFieldBehindHead = board.getCellInDirection(
+			oppositeDirection,
+			game.snake.head,
+		)
+		const isNeckBehindCurrentDirection = equals(
+			oneFieldBehindHead,
+			game.snake.neck,
+		)
+
+		if (isNeckBehindCurrentDirection) {
+			game.snake.direction = input
+		} else {
+			bufferedInput = input
+		}
 	})
 
 	while (game.process() === 'ongoing') {
@@ -68,6 +87,11 @@ async function main() {
 			`${ANSI.cyan}Multiplier: ${ANSI.bold}${game.scoreMultiplier}${ANSI.reset}`,
 		)
 		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}`)
+		if (bufferedInput) {
+			game.snake.direction = bufferedInput
+			bufferedInput = undefined
+		}
+
 		await sleep(getSleepTime(game.snake.head.value))
 	}
 
