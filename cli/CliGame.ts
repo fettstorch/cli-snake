@@ -9,8 +9,9 @@ import {
 	getOppositeDirection,
 	type CellContentSnakeHead,
 } from 'shared/model/Cell'
-import { setScore, getTopScores } from '../client/client'
+import { clientSetScore, clientGetTopScores } from '../client/client'
 import * as readline from 'node:readline'
+import { animateText, text } from './out'
 
 const baseSleepTime = 120
 const assumedTerminalCharacterAspectRatio = 1.3
@@ -22,24 +23,9 @@ const getSleepTime = (direction: CellContentSnakeHead) =>
 	})
 let bufferedInput: CellContentSnakeHead | undefined
 
-const ANSI = {
-	reset: '\x1b[0m',
-	bold: '\x1b[1m',
-	dim: '\x1b[2m',
-	green: '\x1b[32m',
-	yellow: '\x1b[33m',
-	magenta: '\x1b[35m',
-	cyan: '\x1b[36m',
-} as const
+main()
 
-async function animateText(text: string, charDelay = 30): Promise<void> {
-	process.stdout.write('\r')
-	for (const char of text) {
-		process.stdout.write(char)
-		await sleep(charDelay)
-	}
-	process.stdout.write('\n')
-}
+// --- module private
 
 async function main() {
 	const terminalWidth = process.stdout.columns - 1
@@ -57,7 +43,7 @@ async function main() {
 	const game = new Game(board)
 
 	const { directionInput, cleanup } = keyControls()
-	directionInput.subscribe((input) => {
+	const cleanupDirectionInput = directionInput.subscribe((input) => {
 		if (input === 'exit') {
 			cleanup()
 			process.exit(0)
@@ -82,13 +68,13 @@ async function main() {
 
 	while (game.process() === 'ongoing') {
 		console.clear()
-		console.log(`${ANSI.bold}🐍 Snake Game${ANSI.reset}`)
-		console.log(`${ANSI.dim}Controls: ←↑↓→ or WASD${ANSI.reset}`)
+		console.log(text('🐍 Snake Game', 'bold'))
+		console.log(text('Controls: ←↑↓→ or WASD', 'dim'))
 		printBoardState()
 		console.log(
-			`${ANSI.cyan}Multiplier: ${ANSI.bold}${game.scoreMultiplier}${ANSI.reset}`,
+			text('Multiplier:', 'cyan') + text(game.scoreMultiplier, 'bold', 'cyan'),
 		)
-		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}\n`)
+		console.log(text('Score:', 'cyan') + text(game.score, 'bold', 'cyan'))
 		if (bufferedInput) {
 			game.snake.direction = bufferedInput
 			bufferedInput = undefined
@@ -97,67 +83,43 @@ async function main() {
 		await sleep(getSleepTime(game.snake.head.value))
 	}
 
-	if (game.score > 69) {
-		await animateText(MESSAGES.huh)
-		await sleep(1000)
-		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 59) {
-		await animateText(MESSAGES.god)
-		await sleep(1000)
-		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 49) {
-		await animateText(MESSAGES.demiGod)
-		await sleep(1000)
-		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 39) {
-		await animateText(MESSAGES.legendary)
-		await sleep(1000)
-		await animateText(MESSAGES.legendaryFollow)
-	} else if (game.score > 29) {
-		await animateText(MESSAGES.amazing)
-		await sleep(1000)
-		await animateText(MESSAGES.amazingFollow)
-	} else if (game.score > 19) {
-		await animateText(MESSAGES.great)
-		await sleep(1000)
-		await animateText(MESSAGES.greatFollow)
-	} else if (game.score > 9) {
-		await animateText(MESSAGES.good)
-		await sleep(1000)
-		await animateText(MESSAGES.goodFollow)
-	} else {
-		await animateText(MESSAGES.badInitial)
-		await sleep(1000)
-		await animateText(MESSAGES.badFollow)
-	}
+	cleanupDirectionInput()
 
-	await animateText(`\n${ANSI.cyan}Enter your name: ${ANSI.reset}`)
+	const { praise, followUp } = choosePraiseText(game.score)
+	await animateText(praise)
+	await sleep(1000)
+	await animateText(followUp)
+
+	await animateText(text('Enter your name: ', 'cyan'))
 	const rl = readline.createInterface({
 		input: process.stdin,
 		output: process.stdout,
 	})
 
 	const userName = await new Promise<string>((resolve) => {
-		rl.question(`${ANSI.cyan}> ${ANSI.reset}`, (answer) => {
+		rl.question(text('> ', 'cyan'), (answer) => {
 			rl.close()
 			resolve(
 				answer.trim() || `user-${Math.random().toString(36).substring(2, 15)}`,
 			)
 		})
 	})
-	await setScore(userName, game.score)
-	const topScores = getTopScores()
+	await clientSetScore(userName, game.score)
+	const topScores = clientGetTopScores()
 
-	await animateText(
-		`\n✨${ANSI.bold}${ANSI.yellow}Leaderboard${ANSI.reset}✨\n`,
-		50,
-	)
+	await animateText(text('✨ Leaderboard ✨\n', 'bold', 'yellow'), 50)
 	await topScores.then(async (scoreEntries) => {
 		let i = 0
-		const thatsYou = `${ANSI.bold}${ANSI.yellow}<-- THATS YOU! 🎉🤯${ANSI.reset}`
+		const thatsYou = text('<-- THATS YOU! 🎉🤯', 'bold', 'yellow')
 		for (const { user, score } of scoreEntries) {
+			const medal = when(i)({
+				0: '🥇',
+				1: '🥈',
+				2: '🥉',
+				else: '',
+			}).padEnd(2)
 			await animateText(
-				` ${score.toString().padStart(4)} - ${i++ < 3 ? ANSI.yellow : ''}${user}${ANSI.reset} ${user === userName ? thatsYou : ''}`,
+				` ${score.toString().padStart(3)} - ${i++ < 3 ? medal : ''}${user} ${user === userName ? thatsYou : ''}`,
 				7,
 			)
 		}
@@ -166,12 +128,19 @@ async function main() {
 	cleanup()
 	process.exit(0)
 
+	function printBoardState() {
+		console.log(text(`┌${'─'.repeat(board.width)}┐`, 'cyan'))
+		for (const row of boardStateSnapshot()) {
+			console.log(text('│', 'cyan') + row.join('') + text('│', 'cyan'))
+		}
+		console.log(text(`└${'─'.repeat(board.width)}┘`, 'cyan'))
+	}
+
 	function boardStateSnapshot() {
 		const snapshot = Array.from({ length: board.height }, () =>
 			Array.from({ length: board.width }, () => ' '),
 		)
-		snapshot[game.fly.y][game.fly.x] =
-			`${ANSI.bold}${ANSI.magenta}%${ANSI.reset}`
+		snapshot[game.fly.y][game.fly.x] = text('%', 'bold', 'magenta')
 		for (let i = 0; i < game.snake.tail.length; i++) {
 			const prev = game.snake.tail[i - 1] ?? game.snake.head
 			const current = game.snake.tail[i]
@@ -210,43 +179,110 @@ async function main() {
 							: '╚' // ═ to up
 				}
 			}
-			snapshot[current.y][current.x] = `${ANSI.green}${content}${ANSI.reset}`
+			snapshot[current.y][current.x] = text(content, 'green')
 		}
 
 		for (const swallowedFly of game.swallowedFlies) {
-			snapshot[swallowedFly.y][swallowedFly.x] = `${ANSI.green}●${ANSI.reset}`
+			snapshot[swallowedFly.y][swallowedFly.x] = text('●', 'green')
 		}
-		snapshot[game.snake.head.y][game.snake.head.x] =
-			`${ANSI.bold}${ANSI.green}${game.snake.head.value}${ANSI.reset}`
+		snapshot[game.snake.head.y][game.snake.head.x] = text(
+			game.snake.head.value,
+			'bold',
+			'green',
+		)
 
 		return snapshot
 	}
+}
 
-	function printBoardState() {
-		console.log(`${ANSI.cyan}┌${'─'.repeat(board.width)}┐${ANSI.reset}`)
-		for (const row of boardStateSnapshot()) {
-			console.log(
-				`${ANSI.cyan}│${ANSI.reset}${row.join('')}${ANSI.cyan}│${ANSI.reset}`,
-			)
-		}
-		console.log(`${ANSI.cyan}└${'─'.repeat(board.width)}┘${ANSI.reset}`)
+function choosePraiseText(score: number): {
+	praise: string
+	followUp: string
+} {
+	switch (true) {
+		case score > 69:
+			return {
+				praise: MESSAGES.huh,
+				followUp: MESSAGES.legendaryFollow,
+			}
+		case score > 59:
+			return {
+				praise: MESSAGES.god,
+				followUp: MESSAGES.legendaryFollow,
+			}
+		case score > 49:
+			return {
+				praise: MESSAGES.demiGod,
+				followUp: MESSAGES.legendaryFollow,
+			}
+		case score > 39:
+			return {
+				praise: MESSAGES.legendary,
+				followUp: MESSAGES.legendaryFollow,
+			}
+		case score > 29:
+			return {
+				praise: MESSAGES.amazing,
+				followUp: MESSAGES.amazingFollow,
+			}
+		case score > 19:
+			return {
+				praise: MESSAGES.great,
+				followUp: MESSAGES.greatFollow,
+			}
+		case score > 9:
+			return {
+				praise: MESSAGES.good,
+				followUp: MESSAGES.goodFollow,
+			}
+		default:
+			return {
+				praise: MESSAGES.bad,
+				followUp: MESSAGES.badFollow,
+			}
 	}
 }
 
 const MESSAGES = {
-	huh: `${ANSI.bold}${ANSI.green} Well.. maybe you should contribute to www.github.com/schnullerpip/cli-snake and make some more praise texts because you just made more points than what i thought would anyone care to do.. 🤷‍♂️${ANSI.reset}`,
-	god: `${ANSI.bold}${ANSI.green} Ok. Thats it... I'm calling the police! 🚨👮‍♂️ These levels of skill are illegal!${ANSI.reset}`,
-	demiGod: `${ANSI.bold}${ANSI.green} Your are growing too powerful... this shouldn't be possible... 😨 ${ANSI.reset}`,
-	legendary: `${ANSI.bold}${ANSI.green}🎊 WOW! You are officially the best at this!🥇${ANSI.reset}`,
-	legendaryFollow: `${ANSI.bold}${ANSI.green}Give @joolean.dev (🦋) a heads up to let me know how insane you are! 🤩🎉${ANSI.reset}`,
-	amazing: `${ANSI.bold}${ANSI.green}Uhm.. why are you so good at this 🤯 👏👏👏!? ${ANSI.reset}`,
-	amazingFollow: `${ANSI.bold}${ANSI.green}Are... you the one?... Could you actually reach 40!?!?...${ANSI.reset}`,
-	great: `${ANSI.bold}${ANSI.green}Dayum! Well done! 😎🎉${ANSI.reset}`,
-	greatFollow: `${ANSI.bold}${ANSI.green}I think maybe you have a chance to reach 30...👀${ANSI.reset}`,
-	good: `${ANSI.bold}${ANSI.green}Nice score! 😊🎉${ANSI.reset}`,
-	goodFollow: `${ANSI.bold}${ANSI.green}You're not too far off from 20...👀${ANSI.reset}`,
-	badInitial: `${ANSI.bold}${ANSI.yellow}Not bad!..${ANSI.reset}`,
-	badFollow: `${ANSI.bold}${ANSI.yellow}... jk... that was kinda bad 😊${ANSI.reset}`,
+	huh: text(
+		' Well.. maybe you should contribute to www.github.com/schnullerpip/cli-snake and make some more praise texts because you just made more points than what i thought would anyone care to do.. 🤷‍♂️',
+		'bold',
+		'green',
+	),
+	god: text(
+		" Ok. Thats it... I'm calling the police! 🚨👮‍♂️ These levels of skill are illegal!",
+		'bold',
+		'green',
+	),
+	demiGod: text(
+		" Your are growing too powerful... this shouldn't be possible... 😨 ",
+		'bold',
+		'green',
+	),
+	legendary: text('🎊 WOW! You are officially amazing!!! 🏆', 'bold', 'green'),
+	legendaryFollow: text(
+		'Give @fettstorch.com (🦋) a heads up to let me know how insane you are! 🤩🎉',
+		'bold',
+		'green',
+	),
+	amazing: text(
+		'Uhm.. why are you so good at this 🤯 👏👏👏!? ',
+		'bold',
+		'green',
+	),
+	amazingFollow: text(
+		'Are... you the one?... Could you actually reach 40!?!?...',
+		'bold',
+		'green',
+	),
+	great: text('Dayum! Well done! 😎🎉', 'bold', 'green'),
+	greatFollow: text(
+		'I think maybe you have a chance to reach 30...👀',
+		'bold',
+		'green',
+	),
+	good: text('Nice score! 😊🎉', 'bold', 'green'),
+	goodFollow: text("You're not too far off from 20...👀", 'bold', 'green'),
+	bad: text('Not bad!..', 'bold', 'yellow'),
+	badFollow: text('... jk... that was kinda bad 😊', 'bold', 'yellow'),
 } as const
-
-main()

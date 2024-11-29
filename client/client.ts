@@ -1,6 +1,9 @@
 export const BASE_URL = 'https://snake-three-beta.vercel.app/'
 
-export async function setScore(user: string, score: number): Promise<void> {
+export async function clientSetScore(
+	user: string,
+	score: number,
+): Promise<void> {
 	const response = await fetch(`${BASE_URL}/api/setScore`, {
 		method: 'POST',
 		headers: {
@@ -14,7 +17,7 @@ export async function setScore(user: string, score: number): Promise<void> {
 	}
 }
 
-export async function getTopScores(): Promise<
+export async function clientGetTopScores(): Promise<
 	ReadonlyArray<{ user: string; score: number }>
 > {
 	const response = await fetch(`${BASE_URL}/api/getTopScores`)
