@@ -10,6 +10,7 @@ export class Game {
 	pendingGrowth: CellCoordinates | undefined
 	freeCells: CellCoordinates[]
 	gameOver = false
+	score = 0
 
 	constructor(board: { width: number; height: number }) {
 		this.board = new Board(board.width, board.height)
@@ -29,14 +30,14 @@ export class Game {
 		this.positionFly()
 	}
 
-	get score() {
-		return this.snake.length
-	}
-
 	positionFly() {
 		const randomIndex = Math.floor(Math.random() * this.freeCells.length)
 		this.fly = this.freeCells[randomIndex]
 		this.freeCells.splice(randomIndex, 1)
+	}
+
+	get scoreMultiplier() {
+		return this.swallowedFlies.length === 0 ? 1 : this.swallowedFlies.length
 	}
 
 	/** Move the snake, update the free cells, position a fly */
@@ -67,6 +68,7 @@ export class Game {
 		if (this.pendingGrowth) {
 			this.snake.grow(this.pendingGrowth)
 			this.pendingGrowth = undefined
+			this.score += this.scoreMultiplier
 		}
 
 		// check if snake should grow next tick

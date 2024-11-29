@@ -56,7 +56,10 @@ async function main() {
 		console.log(`${ANSI.bold}🐍 Snake Game${ANSI.reset}`)
 		console.log(`${ANSI.dim}Controls: ←↑↓→ or WASD${ANSI.reset}`)
 		printBoardState()
-		console.log(`${ANSI.cyan}Score: ${game.score}${ANSI.reset}`)
+		console.log(
+			`${ANSI.cyan}Multiplier: ${ANSI.bold}${game.scoreMultiplier}${ANSI.reset}`,
+		)
+		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}`)
 		await sleep(sleepTime)
 	}
 
