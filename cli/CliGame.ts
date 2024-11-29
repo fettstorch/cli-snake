@@ -10,6 +10,7 @@ import {
 	type CellContentSnakeHead,
 } from 'shared/model/Cell'
 import { setScore, getTopScores } from '../client/client'
+import * as readline from 'node:readline'
 
 const baseSleepTime = 120
 const assumedTerminalCharacterAspectRatio = 1.3
@@ -87,7 +88,7 @@ async function main() {
 		console.log(
 			`${ANSI.cyan}Multiplier: ${ANSI.bold}${game.scoreMultiplier}${ANSI.reset}`,
 		)
-		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}`)
+		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}\n`)
 		if (bufferedInput) {
 			game.snake.direction = bufferedInput
 			bufferedInput = undefined
@@ -130,11 +131,36 @@ async function main() {
 		await animateText(MESSAGES.badFollow)
 	}
 
-	const user = `user-${Math.random().toString(36).substring(2, 15)}`
-	await setScore(user, game.score)
-	const topScores = await getTopScores()
-	topScores.forEach(({ user, score }, index) => {
-		console.log(`${index + 1}. ${user}: ${score}`)
+	await animateText(`\n${ANSI.cyan}Enter your name: ${ANSI.reset}`)
+	const rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	})
+
+	const userName = await new Promise<string>((resolve) => {
+		rl.question(`${ANSI.cyan}> ${ANSI.reset}`, (answer) => {
+			rl.close()
+			resolve(
+				answer.trim() || `user-${Math.random().toString(36).substring(2, 15)}`,
+			)
+		})
+	})
+	await setScore(userName, game.score)
+	const topScores = getTopScores()
+
+	await animateText(
+		`\n✨${ANSI.bold}${ANSI.yellow}Leaderboard${ANSI.reset}✨\n`,
+		50,
+	)
+	await topScores.then(async (scoreEntries) => {
+		let i = 0
+		const thatsYou = `${ANSI.bold}${ANSI.yellow}<-- THATS YOU! 🎉🤯${ANSI.reset}`
+		for (const { user, score } of scoreEntries) {
+			await animateText(
+				` ${score.toString().padStart(4)} - ${i++ < 3 ? ANSI.yellow : ''}${user}${ANSI.reset} ${user === userName ? thatsYou : ''}`,
+				7,
+			)
+		}
 	})
 
 	cleanup()
