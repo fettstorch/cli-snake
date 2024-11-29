@@ -9,6 +9,7 @@ import {
 	getOppositeDirection,
 	type CellContentSnakeHead,
 } from 'shared/model/Cell'
+import { setScore, getTopScores } from '../client/client'
 
 const baseSleepTime = 120
 const assumedTerminalCharacterAspectRatio = 1.3
@@ -128,6 +129,14 @@ async function main() {
 		await sleep(1000)
 		await animateText(MESSAGES.badFollow)
 	}
+
+	const user = `user-${Math.random().toString(36).substring(2, 15)}`
+	await setScore(user, game.score)
+	const topScores = await getTopScores()
+	topScores.forEach(({ user, score }, index) => {
+		console.log(`${index + 1}. ${user}: ${score}`)
+	})
+
 	cleanup()
 	process.exit(0)
 
