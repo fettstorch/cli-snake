@@ -4,7 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "bun build ./cli/CliGame.ts --outdir ./dist --target node --format esm && chmod +x ./dist/CliGame.js",
-		"dev": "bun cli/CliGame.ts",
+		"dev": "bun run build && node ./dist/CliGame.js",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {

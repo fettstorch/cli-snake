@@ -2,10 +2,18 @@
 
 import { Board } from '../shared/model/Board'
 import { Game } from '../shared/game/Game'
-import { sleep } from '@fettstorch/jule'
+import { sleep, when } from '@fettstorch/jule'
 import { keyControls } from './keyControls'
+import type { CellContentSnakeHead } from 'shared/model/Cell'
 
-const sleepTime = 120
+const baseSleepTime = 100
+const assumedTerminalCharacterAspectRatio = 1.3
+const getSleepTime = (direction: CellContentSnakeHead) =>
+	when(direction)({
+		'<': baseSleepTime,
+		'>': baseSleepTime,
+		else: baseSleepTime * assumedTerminalCharacterAspectRatio,
+	})
 
 const ANSI = {
 	reset: '\x1b[0m',
@@ -60,7 +68,7 @@ async function main() {
 			`${ANSI.cyan}Multiplier: ${ANSI.bold}${game.scoreMultiplier}${ANSI.reset}`,
 		)
 		console.log(`${ANSI.cyan}Score: ${ANSI.bold}${game.score}${ANSI.reset}`)
-		await sleep(sleepTime)
+		await sleep(getSleepTime(game.snake.head.value))
 	}
 
 	if (game.score > 69) {
