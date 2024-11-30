@@ -249,17 +249,17 @@ function choosePraiseText(score: number): {
 
 const MESSAGES = {
 	huh: text(
-		' Well.. maybe you should contribute to www.github.com/schnullerpip/cli-snake and make some more praise texts because you just made more points than what i thought would anyone care to do.. 🤷‍♂️',
+		'WOW.. maybe you should contribute to www.github.com/fettstorch/cli-snake and make some more praise texts because you just made more points than what i thought would anyone care to do.. 🤷‍♂️',
 		'bold',
 		'green',
 	),
 	god: text(
-		" Ok. Thats it... I'm calling the police! 🚨👮‍♂️ These levels of skill are illegal!",
+		"Ok. Thats it... These levels of skill are illegal! I'm calling the police! 🚨👮‍♂️ ",
 		'bold',
 		'green',
 	),
 	demiGod: text(
-		" Your are growing too powerful... this shouldn't be possible... 😨 ",
+		"Your are growing too powerful... this shouldn't be possible... 😨 ",
 		'bold',
 		'green',
 	),
