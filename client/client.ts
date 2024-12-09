@@ -4,20 +4,26 @@ export async function clientSetScore(
 	user: string,
 	score: number,
 ): Promise<'setScore' | 'scoreNotUpdated'> {
-	const response = await fetch(`${BASE_URL}/api/setScore`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ user, score }),
-	})
+	try {
+		const response = await fetch(`${BASE_URL}/api/setScore`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ user, score }),
+		})
 
-	if (!response.ok) {
-		throw new Error(`Failed to set score: ${response.statusText}`)
+		if (!response.ok) {
+			throw new Error(`Failed to set score: ${response.statusText}`)
+		}
+
+		const message = await response.text()
+		return message.includes('Score updated') ? 'setScore' : 'scoreNotUpdated'
+	} catch (error) {
+		console.error('Node version:', process.version)
+		console.error('Full error:', error)
+		throw error
 	}
-
-	const message = await response.text()
-	return message.includes('Score updated') ? 'setScore' : 'scoreNotUpdated'
 }
 
 export async function clientGetTopScores(): Promise<
