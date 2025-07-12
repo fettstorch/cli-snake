@@ -24,4 +24,8 @@ npx @fettstorch/snake
 - Added a score multiplier. The more flies are currently being swallowed the more points you get. This rewards ideal pathing.
 - Added input buffering in order to make the controls more responsive. This should prevent losing very quickly executed inputs.
 
+## Deployment
+
+For instructions on how to deploy the serverless functions, please see the [web/README.md](./web/README.md).
+
 
