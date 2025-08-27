@@ -12,15 +12,19 @@ export function keyControls() {
 		switch (key.name) {
 			case 'up':
 			case 'w':
+			case 'k':
 				return observable.emit('V')
 			case 'down':
 			case 's':
+			case 'j':
 				return observable.emit('A')
 			case 'left':
 			case 'a':
+			case 'h':
 				return observable.emit('>')
 			case 'right':
 			case 'd':
+			case 'l':
 				return observable.emit('<')
 			case 'c':
 			case 'escape':
