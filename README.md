@@ -5,6 +5,15 @@ A simple terminal-based Snake game. Enjoy!
 <img src="https://github.com/user-attachments/assets/8734ee76-5697-47b2-9cef-268225ece162" width="300" />
 
 ## Getting Started 
+
+Use a patched Node.js runtime: 22.23.4+, 24.22.1+, or 26.12.1+ within
+those release lines (or a newer supported release). Older runtimes may trust
+the compromised eMudhra certificate authorities when connecting to the leaderboard.
+The `engines` field declares this requirement; npm may only warn, so check
+`node --version` and upgrade Node itself before playing. Reinstalling Snake
+does not update Node. The `.node-version` file selects Node 24.22.1 for local
+development with compatible version managers.
+
 ```bash
 npm i @fettstorch/snake -g
 ```
